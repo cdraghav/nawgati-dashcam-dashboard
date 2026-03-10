@@ -54,7 +54,7 @@ type LottiePanelProps = { hasError: boolean }
 export function LottiePanel({ hasError }: LottiePanelProps) {
   const [rawData, setRawData] = React.useState<any>(null)
   const lottieRef = React.useRef<any>(null)
-  const rafRef = React.useRef<number>()
+  const rafRef = React.useRef<number>(null)
   const targetX = React.useRef(0.5)
   const frameRef = React.useRef(60)
 
