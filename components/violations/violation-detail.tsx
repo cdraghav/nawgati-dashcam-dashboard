@@ -7,13 +7,12 @@ import {
   CalendarIcon,
   Loader2Icon,
   CarIcon,
-  PlayIcon,
   CheckCircle2Icon,
   XCircleIcon,
   FlagIcon,
 } from "lucide-react"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
+import { cn, getRandomStationImages } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -66,6 +65,12 @@ export function ViolationDetail({ violationId }: ViolationDetailProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [pendingDecision, setPendingDecision] = React.useState<"approved" | "rejected" | "flagged" | null>(null)
   const [viewerIndex, setViewerIndex] = React.useState<number | null>(null)
+
+  const images = React.useMemo(() => {
+    if (!violation) return []
+    const randomCount = (violation.id % 3) + 2
+    return getRandomStationImages(randomCount)
+  }, [violation?.id])
 
   React.useEffect(() => {
     setNotes("")
@@ -129,9 +134,6 @@ export function ViolationDetail({ violationId }: ViolationDetailProps) {
     .filter(Boolean)
     .join(" · ")
 
-  const images = violation.proof.filter((p) => p.media_type === "image").map((p) => p.url)
-  const videos = violation.proof.filter((p) => p.media_type === "video").map((p) => p.url)
-
   const reviewMeta = review ? DECISION_META[review.decision] : null
   const ReviewIcon = reviewMeta?.icon
 
@@ -178,31 +180,13 @@ export function ViolationDetail({ violationId }: ViolationDetailProps) {
 
         <ScrollArea className="flex-1 min-h-0">
           <div className="p-5 space-y-6">
-            {violation.proof.length > 0 ? (
+            {images.length > 0 ? (
               <div className="space-y-3">
-                {images.length > 0 && (
-                  <ImageBentoGrid
-                    images={images}
-                    assetName={violation.vehicle_number}
-                    onImageClick={setViewerIndex}
-                  />
-                )}
-                {videos.map((url, i) => (
-                  <div key={i} className="relative overflow-hidden rounded-lg border bg-muted aspect-video">
-                    <video
-                      src={url}
-                      controls
-                      className="h-full w-full object-contain"
-                      preload="metadata"
-                    >
-                      <track kind="captions" />
-                    </video>
-                    <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 backdrop-blur-sm pointer-events-none">
-                      <PlayIcon className="size-3 text-white" />
-                      <span className="text-[10px] font-medium text-white">Video</span>
-                    </div>
-                  </div>
-                ))}
+                <ImageBentoGrid
+                  images={images}
+                  assetName={violation.vehicle_number}
+                  onImageClick={setViewerIndex}
+                />
               </div>
             ) : (
               <div className="aspect-video w-full overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
